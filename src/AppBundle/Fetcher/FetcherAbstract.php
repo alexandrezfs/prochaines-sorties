@@ -9,7 +9,14 @@
 namespace AppBundle\Fetcher;
 
 
-abstract class FetcherAbstract implements FetcherInterface {
+abstract class FetcherAbstract {
 
     public abstract function fetch();
+
+    public function getInnerHTML($Node)
+    {
+        $Document = new \DOMDocument();
+        $Document->appendChild($Document->importNode($Node,true));
+        return $Document->saveHTML();
+    }
 }

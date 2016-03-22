@@ -8,39 +8,44 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use AppBundle\Fetcher\MangaNewsFetcher;
+
 class EditorFetcherCommand extends ContainerAwareCommand {
 
     protected function configure() {
 
         $this
             ->setName('editor:fetch')
-            ->setDescription('Greet someone')
+            ->setDescription('Fetch an editor')
             ->addArgument(
                 'name',
                 InputArgument::OPTIONAL,
-                'Who do you want to greet?'
-            )
-            ->addOption(
-                'yell',
-                null,
-                InputOption::VALUE_NONE,
-                'If set, the task will yell in uppercase letters'
+                'Set an editor name'
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $name = $input->getArgument('name');
-        if ($name) {
-            $text = 'Hello '.$name;
-        } else {
-            $text = 'Hello';
-        }
+        $editorName = $input->getArgument('name');
 
-        if ($input->getOption('yell')) {
-            $text = strtoupper($text);
-        }
+        $output->writeln("Fetching " . $editorName);
 
-        $output->writeln($text);
+        switch($editorName) {
+
+            case "manganews":
+
+            $fetcher = new MangaNewsFetcher();
+            $fetcher->fetch();
+
+
+
+                break;
+
+            default:
+
+            $output->writeln("This editor does not exist");
+
+                break;
+        }
     }
 }
