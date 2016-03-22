@@ -7,6 +7,9 @@ class AppKernel extends Kernel
 {
     public function registerBundles()
     {
+
+        $this->setDefaultTz();
+
         $bundles = [
             new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new Symfony\Bundle\SecurityBundle\SecurityBundle(),
@@ -46,5 +49,10 @@ class AppKernel extends Kernel
     public function registerContainerConfiguration(LoaderInterface $loader)
     {
         $loader->load($this->getRootDir().'/config/config_'.$this->getEnvironment().'.yml');
+    }
+
+    private function setDefaultTz()
+    {
+        date_default_timezone_set('Europe/Paris');
     }
 }
