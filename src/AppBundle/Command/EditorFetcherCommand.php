@@ -2,13 +2,12 @@
 
 namespace AppBundle\Command;
 
+use AppBundle\Fetcher\FetcherFactory;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
-use AppBundle\Fetcher\MangaNewsFetcher;
 
 class EditorFetcherCommand extends ContainerAwareCommand {
 
@@ -32,20 +31,11 @@ class EditorFetcherCommand extends ContainerAwareCommand {
 
         $em = $this->getContainer()->get('doctrine')->getEntityManager();
 
-        switch($editorName) {
+        $editorFetcherClasses = $this->getContainer()->getParameter('editor_fetcher_class');
 
-            case "manganews":
-
-                $fetcher = new MangaNewsFetcher($em);
-                $fetcher->fetch();
-
-                break;
-
-            default:
-
-            $output->writeln("This editor does not exist");
-
-                break;
+        foreach($editorFetcherClasses as $editorClass) {
+            $fetcher = new $editorClass($em);
+            $fetcher->fetch();
         }
     }
 }
