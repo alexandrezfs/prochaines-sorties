@@ -4,24 +4,20 @@ namespace AppBundle\Fetcher;
 
 use AppBundle\Entity\Sortie;
 use AppBundle\Fetcher\FetcherInterface;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 require_once dirname(__FILE__) . '/../phpQuery/phpQuery/phpQuery.php';
 
 /**
- * Created by PhpStorm.
- * User: alexandrenguyen
- * Date: 20/03/16
- * Time: 20:01
+ * Class MangaNewsFetcher
+ * @package AppBundle\Fetcher
  */
-
 class MangaNewsFetcher extends FetcherAbstract {
 
-    private $fromSite = "manganews.com";
+    private $targetURL = "http://www.manga-news.com/index.php/sorties/";
 
     public function fetch()
     {
-        $html = file_get_contents("http://www.manga-news.com/index.php/sorties/");
+        $html = file_get_contents($this->targetURL);
 
         $document = \phpQuery::newDocumentHTML($html);
 
@@ -32,6 +28,7 @@ class MangaNewsFetcher extends FetcherAbstract {
             $rowDocument = \phpQuery::newDocumentHTML($this->getInnerHTML($rowNode));
 
             $sortie = new Sortie();
+            $sortie->setFromsite($this->targetURL);
 
             $i = 0;
 
@@ -64,8 +61,6 @@ class MangaNewsFetcher extends FetcherAbstract {
 
                 }
 
-                $sortie->setFromsite($this->fromSite);
-
                 $i++;
 
             });
@@ -77,7 +72,6 @@ class MangaNewsFetcher extends FetcherAbstract {
         });
 
         $this->save();
-
     }
 
 }

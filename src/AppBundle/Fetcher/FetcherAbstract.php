@@ -14,32 +14,58 @@ abstract class FetcherAbstract {
 
     private $sorties = array();
     private $em;
+    private $sortiesRepo;
 
+    /**
+     * @param $em
+     * Actually get the EM and the repo
+     */
     function __construct($em)
     {
         $this->em = $em;
+        $this->sortiesRepo = $em->getRepository("AppBundle:Sortie");
     }
 
+    /**
+     * @return mixed
+     * Each child class will have to implements this.
+     * It must use add() to add the release inside array
+     * And save() at the end to persist it.
+     */
     public abstract function fetch();
 
-    public function add($sortie) {
+    /**
+     * @param $sortie
+     * Add a release inside the array
+     */
+    protected function add($sortie) {
 
         //Adding created_at and updated_at dates
         $sortie->setCreatedAt(new \DateTime('now'));
         $sortie->setUpdatedAt(new \DateTime('now'));
 
-        echo "adding " . $sortie->getProductName() . PHP_EOL;
-
         $this->sorties[] = $sortie;
     }
 
-    public function save() {
+    /**
+     * Persists the release array.
+     */
+    protected function save() {
 
         foreach($this->sorties as $sortie) {
 
-            echo "saving " . $sortie->getProductName() . PHP_EOL;
+            //Looking for an existing entry...
+            $sortieExists = $this->sortiesRepo->findOneBy(array(
+                "dateSortie" => $sortie->getDateSortie(),
+                "productName" => $sortie->getProductName()
+            ));
 
-            $this->em->persist($sortie);
+            //We only persists if this entry does not exists.
+            if(!$sortieExists) {
+                echo "saving " . $sortie->getProductName() . PHP_EOL;
+                $this->em->persist($sortie);
+            }
+
         }
 
         echo "flushing" . PHP_EOL;
@@ -47,7 +73,12 @@ abstract class FetcherAbstract {
         $this->em->flush();
     }
 
-    public function getInnerHTML($Node)
+    /**
+     * @param $Node
+     * @return string
+     * An util method to get HTML content inside a DomElement.
+     */
+    protected function getInnerHTML($Node)
     {
         $Document = new \DOMDocument();
         $Document->appendChild($Document->importNode($Node,true));
