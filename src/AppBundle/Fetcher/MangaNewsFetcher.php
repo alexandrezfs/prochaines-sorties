@@ -2,7 +2,9 @@
 
 namespace AppBundle\Fetcher;
 
+use AppBundle\Entity\Sortie;
 use AppBundle\Fetcher\FetcherInterface;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 require_once dirname(__FILE__) . '/../phpQuery/phpQuery/phpQuery.php';
 
@@ -15,6 +17,8 @@ require_once dirname(__FILE__) . '/../phpQuery/phpQuery/phpQuery.php';
 
 class MangaNewsFetcher extends FetcherAbstract {
 
+    private $fromSite = "manganews.com";
+
     public function fetch()
     {
         $html = file_get_contents("http://www.manga-news.com/index.php/sorties/");
@@ -24,18 +28,55 @@ class MangaNewsFetcher extends FetcherAbstract {
         $rowsElements = $document->find("#sorties-list tr");
 
         $rowsElements->each(function($rowNode) {
-            echo '---row---' . PHP_EOL;
 
             $rowDocument = \phpQuery::newDocumentHTML($this->getInnerHTML($rowNode));
 
-            $rowDocument->find('td')->each(function($colNode) {
-                echo '---col---' . PHP_EOL;;
-                echo trim($colNode->textContent) . PHP_EOL;
-                echo '---endcol---' . PHP_EOL;;
+            $sortie = new Sortie();
+
+            $i = 0;
+
+            $rowDocument->find('td')->each(function($colNode) use (&$i, &$sortie) {
+
+                $val = trim($colNode->textContent);
+
+                switch ($i) {
+
+                    case 0:
+                        $sortie->setProductName($val);
+                        break;
+
+                    case 1:
+                        $sortie->setAuthor($val);
+                        break;
+
+                    case 2:
+                        $sortie->setEditor($val);
+                        break;
+
+                    case 3:
+                        $d = new \DateTime($val);
+                        $sortie->setDateSortie($d);
+                        break;
+
+                    default:
+
+                        break;
+
+                }
+
+                $sortie->setFromsite($this->fromSite);
+
+                $i++;
+
             });
 
-            echo '---endrow---' . PHP_EOL;;
+            if($sortie->getProductName() && $sortie->getDateSortie()) {
+                $this->add($sortie);
+            }
+
         });
+
+        $this->save();
 
     }
 

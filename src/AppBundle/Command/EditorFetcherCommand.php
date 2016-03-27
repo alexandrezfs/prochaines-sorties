@@ -30,14 +30,14 @@ class EditorFetcherCommand extends ContainerAwareCommand {
 
         $output->writeln("Fetching " . $editorName);
 
+        $em = $this->getContainer()->get('doctrine')->getEntityManager();
+
         switch($editorName) {
 
             case "manganews":
 
-            $fetcher = new MangaNewsFetcher();
-            $fetcher->fetch();
-
-
+                $fetcher = new MangaNewsFetcher($em);
+                $fetcher->fetch();
 
                 break;
 
