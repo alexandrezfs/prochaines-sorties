@@ -21,7 +21,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/dernieres-sorties", name="homepage")
+     * @Route("/release/manga", name="homepage")
      */
     public function dernieresSortiesAction(Request $request)
     {
