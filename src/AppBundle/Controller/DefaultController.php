@@ -26,14 +26,16 @@ class DefaultController extends Controller
     public function dernieresSortiesAction(Request $request)
     {
         $limit = $request->get('limit');
+        $fromDate = $request->get('from_date');
 
         $em = $this->getDoctrine()->getManager();
 
         $query = $em->createQuery(
             'SELECT s
             FROM AppBundle:Sortie s
-            ORDER BY s.id DESC'
-        );
+            WHERE s.dateSortie > :date_sortie
+            ORDER BY s.dateSortie ASC'
+        )->setParameter('date_sortie', new \DateTime($fromDate));
 
         $sorties = $query->setMaxResults($limit)->getArrayResult();
 
